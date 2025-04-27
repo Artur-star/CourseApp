@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login">Вход</string>
+    <string name="header_onboarding">Тысяча курсов в одном месте</string>
+    <string name="continue_butt">Продолжить</string>
+    <string name="password">Пароль</string>
+    <string name="administration_1c">1C Администрирование</string>
+    <string name="traffic">Трафик</string>
+    <string name="content_marketing">Контент маркетинг</string>
+    <string name="b2b_marketing">B2B маркетинг</string>
+    <string name="google_analytics">Google Аналитика</string>
+    <string name="ux_researcher">UX исследователь</string>
+    <string name="web_analytics">Веб-аналитика</string>
+    <string name="game_design">Геймдизайн</string>
+    <string name="web_design">Веб-дизайн</string>
+    <string name="industrial_engineering">Промпт инженеринг</string>
+    <string name="parsing">Парсинг</string>
+    <string name="python_development">Python-разработка</string>
+    <string name="email">Электронная почта</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="no_acc_registration">Нету аккаунта? Регистрация</string>
+    <string name="forgot_password">Забыл пароль</string>
+</resources>
