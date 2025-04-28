@@ -33,20 +33,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
 import ru.knyazev.coursesapp.R
-import ru.knyazev.coursesapp.presentation.ui.theme.GreenButton
+import ru.knyazev.coursesapp.presentation.data.LoginScreenObj
+import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
 import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayTransparent
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 
 @Composable
-fun Onboarding() {
+fun Onboarding(navController: NavController) {
     Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(100.dp))
         TitleText()
         Spacer(Modifier.height(32.dp))
         GridButtons()
         Spacer(Modifier.weight(1f))
-        ContinueButton()
+        ContinueButton(navController = navController)
         Spacer(Modifier.height(32.dp))
     }
 }
@@ -93,7 +95,7 @@ private fun GridButtons() {
                     modifier = Modifier
                         .rotate(-15f)
                         .offset(y = 15.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenButton),
+                    colors = ButtonDefaults.buttonColors(containerColor = GreenMain),
                 ) { Text(stringResource(R.string.rabbitMQ)) }
                 ContainerButtons(onClick = {}) {
                     Text(stringResource(R.string.traffic))
@@ -141,7 +143,7 @@ private fun GridButtons() {
                     modifier = Modifier
                         .rotate(15f)
                         .offset(y = (-15).dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenButton)
+                    colors = ButtonDefaults.buttonColors(containerColor = GreenMain)
                 ) { Text(stringResource(R.string.big_data)) }
             }
             Row(
@@ -187,7 +189,7 @@ private fun GridButtons() {
                     modifier = Modifier
                         .rotate(-15f)
                         .offset(y = (-15).dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenButton)
+                    colors = ButtonDefaults.buttonColors(containerColor = GreenMain)
                 ) { Text(stringResource(R.string.three_js)) }
                 ContainerButtons(onClick = {}) {
                     Text(stringResource(R.string.parsing))
@@ -204,9 +206,11 @@ private fun GridButtons() {
 }
 
 @Composable
-fun ContinueButton() {
+fun ContinueButton(navController: NavController) {
     PrimaryButton(
-        onClick = {},
+        onClick = {
+            navController.navigate(LoginScreenObj)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)

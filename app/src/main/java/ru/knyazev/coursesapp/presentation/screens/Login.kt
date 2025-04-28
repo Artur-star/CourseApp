@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -37,14 +36,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import ru.knyazev.coursesapp.R
+import ru.knyazev.coursesapp.presentation.data.MainScreenObj
 import ru.knyazev.coursesapp.presentation.ui.theme.BlueButton
+import ru.knyazev.coursesapp.presentation.ui.theme.DarkOrangeButton
+import ru.knyazev.coursesapp.presentation.ui.theme.LightOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGrey
 
 @Composable
-fun Login(onClick: () -> Unit) {
+fun Login(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,7 +67,10 @@ fun Login(onClick: () -> Unit) {
         Spacer(Modifier.height(8.dp))
         CheckPasswordField(isNotEmpty = { isEmptyPasswordState = it })
         Spacer(Modifier.height(24.dp))
-        InputButton(onClick, isErrorEmailState && isEmptyPasswordState)
+        InputButton(
+            onClick = { navController.navigate(MainScreenObj) },
+            isErrorEmailState && isEmptyPasswordState
+        )
         Spacer(Modifier.height(16.dp))
         TextLink()
         Spacer(Modifier.height(32.dp))
@@ -110,16 +116,15 @@ fun VkAndOkButtons() {
             contentPadding = PaddingValues(0.dp)
         ) {
             Box(
-                Modifier
+                modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(Color.White, Color.Black),
-                            start = Offset(0f, 0f),
-                            end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                        brush = Brush.verticalGradient(
+                            colors = listOf(LightOrangeButton, DarkOrangeButton),
                         ),
                         shape = RoundedCornerShape(30.dp)
-                    )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(painter = painterResource(R.drawable.ic_classmates), contentDescription = "OK")
             }

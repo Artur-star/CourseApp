@@ -26,4 +26,9 @@
     <string name="example_email" translatable="false">example@gmail.com</string>
     <string name="no_acc_registration">No account? Registration</string>
     <string name="forgot_password">Forgot the password</string>
+    <string name="main">Main</string>
+    <string name="favorite">Favorite</string>
+    <string name="account">Account</string>
+    <string name="search_course">Search courses…</string>
+    <string name="date_added">By date added</string>
 </resources>

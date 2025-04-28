@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,7 +18,15 @@ fun PrimaryTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
+    color: TextFieldColors = TextFieldDefaults.colors(
+        unfocusedContainerColor = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight,
+        focusedContainerColor = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight,
+        unfocusedIndicatorColor = Color.Transparent,
+        focusedIndicatorColor = Color.Transparent,
+        errorIndicatorColor = Color.Transparent
+    ),
     placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
 ) {
     TextField(
         value = value,
@@ -27,14 +36,8 @@ fun PrimaryTextField(
         isError = isError,
         singleLine = true,
         placeholder = placeholder,
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight,
-            focusedContainerColor = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent,
-        ),
+        colors = color,
+        leadingIcon = leadingIcon,
         textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
-
     )
 }

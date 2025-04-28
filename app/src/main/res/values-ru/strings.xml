@@ -20,4 +20,9 @@
     <string name="enter_password">Введите пароль</string>
     <string name="no_acc_registration">Нету аккаунта? Регистрация</string>
     <string name="forgot_password">Забыл пароль</string>
+    <string name="main">Главная</string>
+    <string name="favorite">Избранное</string>
+    <string name="account">Аккаунт</string>
+    <string name="search_course">Поиск курсов…</string>
+    <string name="date_added">По дате добавления</string>
 </resources>

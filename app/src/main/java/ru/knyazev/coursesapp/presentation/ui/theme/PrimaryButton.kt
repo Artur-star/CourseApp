@@ -15,7 +15,7 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(containerColor = GreenButton),
+    colors: ButtonColors = ButtonDefaults.buttonColors(containerColor = GreenMain),
     shape: RoundedCornerShape = RoundedCornerShape(30.dp),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable RowScope.() -> Unit,
