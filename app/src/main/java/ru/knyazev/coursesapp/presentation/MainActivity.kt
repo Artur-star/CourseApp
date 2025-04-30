@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ru.knyazev.coursesapp.presentation.screens.MainScreen
 import ru.knyazev.coursesapp.presentation.screens.MainViewModel
@@ -32,8 +34,9 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        MainScreen(mainViewModel)
-//                        val navController = rememberNavController()
+                        val navController: NavHostController = rememberNavController()
+                        MainScreen(mainViewModel, navController)
+
 //                        Login(navController)
 //
 //

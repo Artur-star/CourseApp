@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,15 +36,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import ru.knyazev.coursesapp.R
-import ru.knyazev.coursesapp.data.model.Course
+import ru.knyazev.coursesapp.domain.model.CourseUI
 import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenu
+import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenuItem
 import ru.knyazev.coursesapp.presentation.ui.theme.DarkGrayDark
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
 import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayLight
@@ -52,22 +58,74 @@ import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteMainDark
 
 @Composable
-fun MainScreen(mainViewModel: MainViewModel) {
-    val state = mainViewModel.coursesListState.collectAsState()
+fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
+    val state = viewModel.state.collectAsState()
     Scaffold(
-        bottomBar = { ButtonMenu() })
+        bottomBar = {
+            ButtonMenu(
+                onHomeClick = {
+                    navController.navigate(ButtonMenuItem.HomeBut.route)
+                },
+                onFavoritesClick = {
+                    navController.navigate(ButtonMenuItem.FavoriteBut.route)
+                },
+                onAccountClick = {
+                    navController.navigate(ButtonMenuItem.AccBut.route)
+                })
+        })
     { innerPadding ->
-        Column(
-            Modifier
-                .padding(innerPadding)
+        NavHost(
+            navController = navController,
+            startDestination = ButtonMenuItem.HomeBut.route,
+            modifier = Modifier.padding(innerPadding)
         ) {
-            ContentMainScreen(state.value.coursesList, mainViewModel)
+            composable(ButtonMenuItem.HomeBut.route) {
+                HomeScreen(
+                    state.value.listCourses,
+                    viewModel
+                )
+            }
+            composable(ButtonMenuItem.FavoriteBut.route) {
+                FavoritesScreen(
+                    state.value.listCourses,
+                    viewModel
+                )
+            }
+            composable(ButtonMenuItem.AccBut.route) { }
         }
     }
 }
 
 @Composable
-fun ContentMainScreen(list: List<Course>, mainViewModel: MainViewModel) {
+fun FavoritesScreen(list: List<CourseUI>, viewModel: MainViewModel) {
+    LaunchedEffect(viewModel) {
+        viewModel.getAllCoursesFromCache()
+    }
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+    ) {
+        Text(
+            text = stringResource(R.string.favorites),
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = 22.sp,
+                lineHeight = 28.sp,
+                fontWeight = FontWeight.Normal
+            )
+        )
+        Spacer(Modifier.height(16.dp))
+        ListCourses(list, viewModel)
+    }
+}
+
+
+@Composable
+fun HomeScreen(list: List<CourseUI>, viewModel: MainViewModel) {
+    LaunchedEffect(viewModel) {
+        viewModel.getAllCoursesFromApi()
+    }
+
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -77,23 +135,24 @@ fun ContentMainScreen(list: List<Course>, mainViewModel: MainViewModel) {
         Spacer(Modifier.height(16.dp))
         SortedBut()
         Spacer(Modifier.height(16.dp))
-        ListCourses(list, mainViewModel)
+        ListCourses(list, viewModel)
     }
 }
 
 @Composable
-fun ListCourses(list: List<Course>, mainViewModel: MainViewModel) {
+fun ListCourses(list: List<CourseUI>, viewModel: MainViewModel) {
+
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(list) { item ->
             CourseItem(item) {
-                mainViewModel.onFavoritesClicked(item)
+                viewModel.updateCourseToFavorites(item)
             }
         }
     }
 }
 
 @Composable
-fun CourseItem(item: Course, onFavClick: () -> Unit) {
+fun CourseItem(item: CourseUI, onFavClick: () -> Unit) {
     val title = item.title
     val text = item.text
     val price = item.price
@@ -101,6 +160,7 @@ fun CourseItem(item: Course, onFavClick: () -> Unit) {
     val startDate = item.startDate
     val hasLike = item.hasLike
     val publishDate = item.publishDate
+
 
     Column(Modifier.background(color = DarkGrayDark, shape = RoundedCornerShape(16.dp))) {
         ItemHeader(rate, startDate, hasLike) {
@@ -152,14 +212,22 @@ fun ItemHeader(rate: String, startDate: String, hasLike: Boolean, onFavClick: ()
                     .background(LightGrayTransparent, CircleShape)
 
             ) {
-                Icon(
-                    painter = if (hasLike) painterResource(R.drawable.ic_green_bookmark)
-                    else painterResource(R.drawable.ic_bookmark),
-                    contentDescription = "bookmark",
+                if (hasLike) {
+                    BaseIcon(
+                        painter = painterResource(R.drawable.ic_green_bookmark),
+                        tint = GreenMain,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .align(Alignment.Center),
+                    )
+                } else BaseIcon(
+                    painter = painterResource(R.drawable.ic_bookmark),
+                    tint = WhiteMainDark,
                     modifier = Modifier
                         .size(16.dp)
                         .align(Alignment.Center),
                 )
+
             }
         }
 
@@ -271,4 +339,14 @@ fun FieldSearchCourse() {
             )
         }
     }
+}
+
+@Composable
+fun BaseIcon(tint: Color, painter: Painter, modifier: Modifier) {
+    Icon(
+        painter = painter,
+        contentDescription = "bookmark",
+        tint = tint,
+        modifier = modifier
+    )
 }

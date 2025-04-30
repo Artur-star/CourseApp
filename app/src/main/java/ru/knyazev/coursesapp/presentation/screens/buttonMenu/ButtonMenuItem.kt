@@ -7,18 +7,18 @@ sealed class ButtonMenuItem(
     val title: Int,
     val  iconId: Int
 ) {
-    object MainBut: ButtonMenuItem(
-        route = "",
+    object HomeBut: ButtonMenuItem(
+        route = "Home",
         title = R.string.main,
         iconId = R.drawable.ic_house
     )
     object FavoriteBut: ButtonMenuItem(
-        route = "",
+        route = "Favorites",
         title = R.string.favorite,
         iconId = R.drawable.ic_bookmark
     )
     object AccBut: ButtonMenuItem(
-        route = "",
+        route = "Account",
         title = R.string.account,
         iconId = R.drawable.ic_person
     )

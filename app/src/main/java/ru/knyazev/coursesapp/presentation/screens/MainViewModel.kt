@@ -4,57 +4,62 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.knyazev.coursesapp.data.CourseRepository
-import ru.knyazev.coursesapp.data.model.Course
+import ru.knyazev.coursesapp.domain.model.CourseUI
 import javax.inject.Inject
 
-data class CoursesListState(
-    val coursesList: List<Course> = emptyList(),
-    val isFavorite: Boolean = false
-)
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val courseRepository: CourseRepository,
 ) : ViewModel() {
 
-    private val _coursesListState = MutableStateFlow(CoursesListState())
-    val coursesListState: StateFlow<CoursesListState> get() = _coursesListState
+    val state = MutableStateFlow(MainState.initState)
 
-    init {
-        getAllCourses()
-    }
-
-    private fun getAllCourses() {
+    fun getAllCoursesFromApi() {
         viewModelScope.launch {
-
-            val resultFromCache: List<Course> = courseRepository.getCoursesFromCache()
-
-
-            val resultFromApi: List<Course> =
-                courseRepository.getCoursesFromApi() ?: emptyList()
-            if (resultFromApi.isNotEmpty()) {
-                _coursesListState.update { coursesListState ->
-                    coursesListState.copy(
-                        coursesList = courseRepository.getCoursesFromApi() ?: emptyList()
+            courseRepository.getCoursesFromApi()?.let { listCourses ->
+                state.update {
+                    it.copy(
+                        listCourses = listCourses
                     )
                 }
             }
         }
     }
 
-    fun onFavoritesClicked(course: Course) {
+    fun addCourseToCache(courseUI: CourseUI) {
         viewModelScope.launch {
-            _coursesListState.update { coursesListState ->
-                coursesListState.copy(
-                    isFavorite = course.hasLike
-                )
+            courseRepository.addCourseToCache(courseUI)
+        }.apply {
+            state.update { it.copy(tempAddCourseUI = null) }
+            getAllCoursesFromCache()
+        }
+    }
+
+    fun getAllCoursesFromCache() {
+        viewModelScope.launch {
+            courseRepository.getCoursesFromCache().let { listCourses ->
+                state.update { it.copy(listCourses = listCourses) }
             }
-            courseRepository.addCoursesToCache(course)
-            courseRepository.updateCourseToCache(course = course)
+        }
+    }
+
+    fun deleteCourse(courseUI: CourseUI) {
+        viewModelScope.launch {
+            courseRepository.deleteCourse(courseUI).apply {
+                getAllCoursesFromCache()
+            }
+        }
+    }
+
+    fun updateCourseToFavorites(courseUI: CourseUI) {
+        viewModelScope.launch {
+            courseRepository.updateCourseToCache(courseUI).apply {
+                state.update { it.copy(isFavorite = courseUI.hasLike) }
+            }
         }
     }
 }

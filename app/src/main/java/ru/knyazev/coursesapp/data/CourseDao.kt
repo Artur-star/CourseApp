@@ -1,6 +1,7 @@
 package ru.knyazev.coursesapp.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -18,4 +19,7 @@ interface CourseDao {
 
     @Update
     suspend fun updateCourse(course: Course)
+
+    @Delete
+    suspend fun deleteCourse(course: Course)
 }

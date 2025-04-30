@@ -22,13 +22,17 @@ import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGrey
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteMainDark
 
 @Composable
-fun ButtonMenu() {
+fun ButtonMenu(
+    onFavoritesClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    onAccountClick: () -> Unit,
+) {
     val items = listOf(
-        ButtonMenuItem.MainBut,
+        ButtonMenuItem.HomeBut,
         ButtonMenuItem.FavoriteBut,
         ButtonMenuItem.AccBut
     )
-    val selectedItem = remember { mutableIntStateOf(ButtonMenuItem.MainBut.title) }
+    val selectedItem = remember { mutableIntStateOf(ButtonMenuItem.HomeBut.title) }
 
     NavigationBar(modifier = Modifier.background(color = StrokeGrey)) {
         items.forEach { item ->
@@ -36,6 +40,11 @@ fun ButtonMenu() {
                 selected = selectedItem.intValue == item.title,
                 onClick = {
                     selectedItem.intValue = item.title
+                    when (item.title) {
+                        ButtonMenuItem.HomeBut.title -> onHomeClick()
+                        ButtonMenuItem.FavoriteBut.title -> onFavoritesClick()
+                        ButtonMenuItem.AccBut.title -> onAccountClick()
+                    }
                 },
                 colors = NavigationBarItemColors(
                     selectedIndicatorColor = LightGrayDark,
