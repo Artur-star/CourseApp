@@ -1,5 +1,7 @@
 package ru.knyazev.coursesapp.presentation.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Patterns.EMAIL_ADDRESS
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +48,8 @@ import ru.knyazev.coursesapp.presentation.ui.theme.LightOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGrey
+import ru.knyazev.coursesapp.utils.Constants.OK_URI
+import ru.knyazev.coursesapp.utils.Constants.VK_URI
 
 @Composable
 fun Login(navController: NavController) {
@@ -82,13 +87,17 @@ fun Login(navController: NavController) {
 
 @Composable
 fun VkAndOkButtons() {
+    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         PrimaryButton(
-            onClick = {},
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(VK_URI))
+                context.startActivity(intent)
+            },
             colors = ButtonDefaults.buttonColors(
                 containerColor = BlueButton
             ),
@@ -104,7 +113,10 @@ fun VkAndOkButtons() {
         }
         Spacer(Modifier.width(16.dp))
         PrimaryButton(
-            onClick = {},
+            onClick = {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(OK_URI))
+                context.startActivity(intent)
+            },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent
             ),

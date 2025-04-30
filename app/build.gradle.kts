@@ -55,6 +55,7 @@ dependencies {
     implementation (libs.kotlinx.serialization.json)
     implementation (libs.androidx.runtime.livedata)
     implementation (libs.navigation.compose)
+    implementation (libs.androidx.room.ktx)
 
     ksp(libs.androidx.room.compiler)
     ksp(libs.dagger.hilt.compiler)
