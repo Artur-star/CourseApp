@@ -16,49 +16,73 @@ class MainViewModel @Inject constructor(
     private val courseRepository: CourseRepository,
 ) : ViewModel() {
 
-    val state = MutableStateFlow(MainState.initState)
+    private val _homeState = MutableStateFlow(MainState.initState)
+    val homeState = _homeState
 
-    fun getAllCoursesFromApi() {
-        viewModelScope.launch {
-            courseRepository.getCoursesFromApi()?.let { listCourses ->
-                state.update {
-                    it.copy(
-                        listCourses = listCourses
-                    )
-                }
-            }
-        }
+    private val _favoritesState = MutableStateFlow(MainState.initState)
+    val favoritesState = _favoritesState
+
+    init {
+        loadInitialData()
     }
 
-    fun addCourseToCache(courseUI: CourseUI) {
+    fun loadInitialData() {
         viewModelScope.launch {
-            courseRepository.addCourseToCache(courseUI)
-        }.apply {
-            state.update { it.copy(tempAddCourseUI = null) }
-            getAllCoursesFromCache()
+            val apiCourses = courseRepository.getCoursesFromApi() ?: emptyList()
+            val cacheCourse = courseRepository.getCoursesFromCache()
+
+            val mergeCourse = apiCourses.map { apiCourse ->
+                cacheCourse.find { it.id == apiCourse.id }?.let { cacheCourse ->
+                    apiCourse.copy(hasLike = cacheCourse.hasLike)
+                } ?: apiCourse
+            }
+
+            _homeState.update {
+                it.copy(listCourses = mergeCourse)
+            }
+            _favoritesState.update {
+                it.copy(listCourses = cacheCourse)
+            }
         }
     }
 
     fun getAllCoursesFromCache() {
         viewModelScope.launch {
             courseRepository.getCoursesFromCache().let { listCourses ->
-                state.update { it.copy(listCourses = listCourses) }
+                _favoritesState.update { it.copy(listCourses = listCourses) }
             }
         }
     }
 
-    fun deleteCourse(courseUI: CourseUI) {
+    private fun deleteCourse(courseUI: CourseUI) {
         viewModelScope.launch {
-            courseRepository.deleteCourse(courseUI).apply {
-                getAllCoursesFromCache()
-            }
+            courseRepository.deleteCourse(courseUI)
+        }
+    }
+
+    private fun addCourseToCache(courseUI: CourseUI) {
+        viewModelScope.launch {
+            courseRepository.addCourseToCache(courseUI)
         }
     }
 
     fun updateCourseToFavorites(courseUI: CourseUI) {
         viewModelScope.launch {
-            courseRepository.updateCourseToCache(courseUI).apply {
-                state.update { it.copy(isFavorite = courseUI.hasLike) }
+            val updateCourse = courseUI.copy(hasLike = !courseUI.hasLike)
+            if (updateCourse.hasLike) {
+                addCourseToCache(updateCourse)
+            } else {
+                deleteCourse(updateCourse)
+            }
+            _homeState.update { state ->
+                state.copy(listCourses = state.listCourses.map {
+                    if (it.id == updateCourse.id) updateCourse else it
+                })
+            }
+            _favoritesState.update { state ->
+                state.copy(listCourses = state.listCourses.map {
+                    if (it.id == updateCourse.id) updateCourse else it
+                })
             }
         }
     }

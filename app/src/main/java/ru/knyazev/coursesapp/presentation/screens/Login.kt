@@ -35,8 +35,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,6 +47,7 @@ import ru.knyazev.coursesapp.R
 import ru.knyazev.coursesapp.presentation.data.MainScreenObj
 import ru.knyazev.coursesapp.presentation.ui.theme.BlueButton
 import ru.knyazev.coursesapp.presentation.ui.theme.DarkOrangeButton
+import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
 import ru.knyazev.coursesapp.presentation.ui.theme.LightOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
@@ -147,7 +151,10 @@ fun VkAndOkButtons() {
 @Composable
 fun TextLink() {
     Text(
-        text = stringResource(R.string.no_acc_registration),
+        text = buildAnnotatedString {
+            append("Нету аккаунта? ")
+            withStyle(SpanStyle(GreenMain)) { append("Регистрация") }
+        },
         style = MaterialTheme.typography.bodyLarge.copy(
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
@@ -155,12 +162,14 @@ fun TextLink() {
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center
     )
+    Spacer(Modifier.height(8.dp))
     Text(
         text = stringResource(R.string.forgot_password),
         style = MaterialTheme.typography.bodyLarge.copy(
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold
         ),
+        color = GreenMain,
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center
     )
@@ -180,7 +189,6 @@ fun CheckEmailField(isError: (Boolean) -> Unit) {
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp)
             .wrapContentHeight(align = Alignment.CenterVertically),
         placeholder = {
             Text(
@@ -188,7 +196,6 @@ fun CheckEmailField(isError: (Boolean) -> Unit) {
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
                 modifier = Modifier
                     .alpha(0.5f)
-                    .padding(0.dp)
             )
         },
         isError = errorState.isNotEmpty()
@@ -205,8 +212,7 @@ fun CheckPasswordField(isNotEmpty: (Boolean) -> Unit) {
             isNotEmpty(passwordState.isNotEmpty())
         },
         modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
+            .fillMaxWidth(),
         placeholder = {
             Text(
                 text = stringResource(R.string.enter_password),
@@ -222,8 +228,7 @@ fun InputButton(onClick: () -> Unit, enabled: Boolean) {
     PrimaryButton(
         onClick = onClick,
         modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
+            .fillMaxWidth(),
         enabled = enabled
 
     ) {

@@ -30,6 +30,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,10 +57,16 @@ import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayLight
 import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayTransparent
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteMainDark
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.util.Locale
 
 @Composable
 fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
-    val state = viewModel.state.collectAsState()
+    val homeState = viewModel.homeState.collectAsState()
+    val favoriteState = viewModel.favoritesState.collectAsState()
+
     Scaffold(
         bottomBar = {
             ButtonMenu(
@@ -81,13 +88,13 @@ fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
         ) {
             composable(ButtonMenuItem.HomeBut.route) {
                 HomeScreen(
-                    state.value.listCourses,
+                    homeState.value.listCourses,
                     viewModel
                 )
             }
             composable(ButtonMenuItem.FavoriteBut.route) {
                 FavoritesScreen(
-                    state.value.listCourses,
+                    favoriteState.value.listCourses,
                     viewModel
                 )
             }
@@ -119,11 +126,16 @@ fun FavoritesScreen(list: List<CourseUI>, viewModel: MainViewModel) {
     }
 }
 
-
 @Composable
 fun HomeScreen(list: List<CourseUI>, viewModel: MainViewModel) {
+    val listState = remember { mutableStateOf(list) }
+
     LaunchedEffect(viewModel) {
-        viewModel.getAllCoursesFromApi()
+        viewModel.loadInitialData()
+    }
+
+    LaunchedEffect(list) {
+        listState.value = list
     }
 
     Column(
@@ -133,9 +145,11 @@ fun HomeScreen(list: List<CourseUI>, viewModel: MainViewModel) {
     ) {
         FieldSearchCourse()
         Spacer(Modifier.height(16.dp))
-        SortedBut()
+        SortedBut {
+            listState.value = listState.value.sortedBy { parseDate(it.publishDate) }
+        }
         Spacer(Modifier.height(16.dp))
-        ListCourses(list, viewModel)
+        ListCourses(listState.value, viewModel)
     }
 }
 
@@ -144,27 +158,20 @@ fun ListCourses(list: List<CourseUI>, viewModel: MainViewModel) {
 
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(list) { item ->
-            CourseItem(item) {
-                viewModel.updateCourseToFavorites(item)
-            }
+            CourseItem(item, viewModel)
         }
     }
 }
 
 @Composable
-fun CourseItem(item: CourseUI, onFavClick: () -> Unit) {
+fun CourseItem(item: CourseUI, viewModel: MainViewModel) {
     val title = item.title
     val text = item.text
     val price = item.price
-    val rate = item.rate
-    val startDate = item.startDate
-    val hasLike = item.hasLike
-    val publishDate = item.publishDate
-
 
     Column(Modifier.background(color = DarkGrayDark, shape = RoundedCornerShape(16.dp))) {
-        ItemHeader(rate, startDate, hasLike) {
-            onFavClick()
+        ItemHeader(item) {
+            viewModel.updateCourseToFavorites(item)
         }
         Spacer(Modifier.height(16.dp))
         Text(text = title, style = MaterialTheme.typography.titleMedium)
@@ -185,7 +192,9 @@ fun CourseItem(item: CourseUI, onFavClick: () -> Unit) {
 }
 
 @Composable
-fun ItemHeader(rate: String, startDate: String, hasLike: Boolean, onFavClick: () -> Unit) {
+fun ItemHeader(item: CourseUI, onFavClick: () -> Unit) {
+    val startDateParseState = parseDate(item.startDate)
+
     Box(
         Modifier
             .fillMaxWidth()
@@ -212,7 +221,7 @@ fun ItemHeader(rate: String, startDate: String, hasLike: Boolean, onFavClick: ()
                     .background(LightGrayTransparent, CircleShape)
 
             ) {
-                if (hasLike) {
+                if (item.hasLike) {
                     BaseIcon(
                         painter = painterResource(R.drawable.ic_green_bookmark),
                         tint = GreenMain,
@@ -227,7 +236,6 @@ fun ItemHeader(rate: String, startDate: String, hasLike: Boolean, onFavClick: ()
                         .size(16.dp)
                         .align(Alignment.Center),
                 )
-
             }
         }
 
@@ -251,11 +259,11 @@ fun ItemHeader(rate: String, startDate: String, hasLike: Boolean, onFavClick: ()
                     tint = GreenMain
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(text = rate, style = MaterialTheme.typography.bodySmall)
+                Text(text = item.rate, style = MaterialTheme.typography.bodySmall)
             }
             Spacer(Modifier.width(4.dp))
             Text(
-                text = startDate,
+                text = startDateParseState.toString(),
                 modifier = Modifier
                     .background(
                         shape = RoundedCornerShape(12.dp),
@@ -269,26 +277,32 @@ fun ItemHeader(rate: String, startDate: String, hasLike: Boolean, onFavClick: ()
 }
 
 @Composable
-fun SortedBut() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically
+fun SortedBut(onSort: () -> Unit) {
+    Box(
+        Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(R.string.date_added),
-            color = GreenMain
-        )
-        Image(
+        Row(
             modifier = Modifier
-                .padding(0.dp)
+                .align(Alignment.CenterEnd)
                 .clickable(
-                    onClick = {},
+                    onClick = onSort,
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(),
                 ),
-            painter = painterResource(R.drawable.ic_arrow_down_up),
-            contentDescription = "",
-        )
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.date_added),
+                color = GreenMain
+            )
+            Image(
+                modifier = Modifier
+                    .padding(0.dp),
+                painter = painterResource(R.drawable.ic_arrow_down_up),
+                contentDescription = "",
+            )
+        }
     }
 }
 
@@ -349,4 +363,16 @@ fun BaseIcon(tint: Color, painter: Painter, modifier: Modifier) {
         tint = tint,
         modifier = modifier
     )
+}
+
+private fun parseDate(dateString: String): String? {
+    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val outputFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale("ru", "RU"))
+
+    return try {
+        val date = LocalDate.parse(dateString, inputFormatter)
+        date.format(outputFormatter)
+    } catch (e: DateTimeParseException) {
+        null
+    }
 }
