@@ -42,20 +42,21 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                     ) {
                         val navController: NavHostController = rememberNavController()
-                        NavHost(
-                            navController = navController,
-                            startDestination = OnboardingScreenObj
-                        ) {
-                            composable<OnboardingScreenObj> {
-                                Onboarding(navController)
-                            }
-                            composable<LoginScreenObj> {
-                                Login(navController)
-                            }
-                            composable<MainScreenObj> {
-                                MainScreen(mainViewModel, navController = navController)
-                            }
-                        }
+                        MainScreen(mainViewModel, navController = navController)
+//                        NavHost(
+//                            navController = navController,
+//                            startDestination = OnboardingScreenObj
+//                        ) {
+//                            composable<OnboardingScreenObj> {
+//                                Onboarding(navController)
+//                            }
+//                            composable<LoginScreenObj> {
+//                                Login(navController)
+//                            }
+//                            composable<MainScreenObj> {
+//                                MainScreen(mainViewModel, navController = navController)
+//                            }
+//                        }
                     }
                 }
             }

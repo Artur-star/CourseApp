@@ -51,7 +51,7 @@ import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
 import ru.knyazev.coursesapp.presentation.ui.theme.LightOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
-import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGrey
+import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGreyLight
 import ru.knyazev.coursesapp.utils.Constants.OK_URI
 import ru.knyazev.coursesapp.utils.Constants.VK_URI
 
@@ -83,7 +83,7 @@ fun Login(navController: NavController) {
         Spacer(Modifier.height(16.dp))
         TextLink()
         Spacer(Modifier.height(32.dp))
-        HorizontalDivider(thickness = 1.dp, color = StrokeGrey)
+        HorizontalDivider(thickness = 1.dp, color = StrokeGreyLight)
         Spacer(Modifier.height(32.dp))
         VkAndOkButtons()
     }

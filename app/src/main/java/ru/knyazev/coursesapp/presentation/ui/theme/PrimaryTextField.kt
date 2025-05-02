@@ -19,8 +19,8 @@ fun PrimaryTextField(
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     color: TextFieldColors = TextFieldDefaults.colors(
-        unfocusedContainerColor = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight,
-        focusedContainerColor = if (isSystemInDarkTheme()) LightGrayDark else LightGrayLight,
+        unfocusedContainerColor = if (isSystemInDarkTheme()) GrayLight else GrayDark,
+        focusedContainerColor = if (isSystemInDarkTheme()) GrayLight else GrayDark,
         unfocusedIndicatorColor = Color.Transparent,
         focusedIndicatorColor = Color.Transparent,
         errorIndicatorColor = Color.Transparent

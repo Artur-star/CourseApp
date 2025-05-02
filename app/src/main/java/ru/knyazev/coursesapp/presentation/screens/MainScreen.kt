@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,9 +50,7 @@ import ru.knyazev.coursesapp.R
 import ru.knyazev.coursesapp.domain.model.CourseUI
 import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenu
 import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenuItem
-import ru.knyazev.coursesapp.presentation.ui.theme.DarkGrayDark
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
-import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayLight
 import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayTransparent
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteMainDark
@@ -169,7 +166,7 @@ fun CourseItem(item: CourseUI, viewModel: MainViewModel) {
     val text = item.text
     val price = item.price
 
-    Column(Modifier.background(color = DarkGrayDark, shape = RoundedCornerShape(16.dp))) {
+    Column(Modifier.background(color = MaterialTheme.colorScheme.onPrimary, shape = RoundedCornerShape(16.dp))) {
         ItemHeader(item) {
             viewModel.updateCourseToFavorites(item)
         }
@@ -203,7 +200,9 @@ fun ItemHeader(item: CourseUI, onFavClick: () -> Unit) {
         Image(
             painter = painterResource(R.drawable.cover),
             contentDescription = "",
-            modifier = Modifier.clip(shape = RoundedCornerShape(12.dp)),
+            modifier = Modifier
+                .clip(shape = RoundedCornerShape(12.dp))
+                .fillMaxSize(),
             contentScale = ContentScale.Crop,
         )
         Box(
@@ -310,12 +309,13 @@ fun SortedBut(onSort: () -> Unit) {
 fun FieldSearchCourse() {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         PrimaryTextField(
             value = "",
             onValueChange = {},
+            modifier = Modifier.weight(1f),
             placeholder = {
                 Text(
                     text = stringResource(R.string.search_course),
@@ -324,8 +324,8 @@ fun FieldSearchCourse() {
                 )
             },
             color = TextFieldDefaults.colors(
-                unfocusedContainerColor = if (isSystemInDarkTheme()) DarkGrayDark else LightGrayLight,
-                focusedContainerColor = if (isSystemInDarkTheme()) DarkGrayDark else LightGrayLight,
+                unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent
@@ -343,7 +343,7 @@ fun FieldSearchCourse() {
             onClick = {},
             modifier = Modifier
                 .clip(CircleShape)
-                .background(DarkGrayDark)
+                .background(MaterialTheme.colorScheme.onPrimary)
 
         ) {
             Icon(

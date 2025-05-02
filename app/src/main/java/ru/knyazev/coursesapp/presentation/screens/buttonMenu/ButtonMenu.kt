@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
-import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayDark
-import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGrey
+import ru.knyazev.coursesapp.presentation.ui.theme.GrayLight
+import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGreyLight
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteMainDark
 
 @Composable
@@ -34,7 +34,7 @@ fun ButtonMenu(
     )
     val selectedItem = remember { mutableIntStateOf(ButtonMenuItem.HomeBut.title) }
 
-    NavigationBar(modifier = Modifier.background(color = StrokeGrey)) {
+    NavigationBar(modifier = Modifier.background(color = StrokeGreyLight)) {
         items.forEach { item ->
             NavigationBarItem(
                 selected = selectedItem.intValue == item.title,
@@ -47,13 +47,14 @@ fun ButtonMenu(
                     }
                 },
                 colors = NavigationBarItemColors(
-                    selectedIndicatorColor = LightGrayDark,
-                    selectedIconColor = Color.Blue,
+                    selectedIndicatorColor = GrayLight,
+                    selectedIconColor = Color.Transparent,
                     selectedTextColor = Color.Transparent,
                     unselectedIconColor = Color.Transparent,
                     unselectedTextColor = Color.Transparent,
                     disabledIconColor = Color.Transparent,
-                    disabledTextColor = Color.Transparent
+                    disabledTextColor = Color.Transparent,
+
                 ),
                 icon = {
                     Icon(
