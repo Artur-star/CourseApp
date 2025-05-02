@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -15,7 +16,10 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: ButtonColors = ButtonDefaults.buttonColors(containerColor = GreenMain),
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = GreenMain,
+        disabledContainerColor = MaterialTheme.colorScheme.surface
+    ),
     shape: RoundedCornerShape = RoundedCornerShape(30.dp),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable RowScope.() -> Unit,
@@ -27,6 +31,7 @@ fun PrimaryButton(
         shape = shape,
         content = content,
         contentPadding = contentPadding,
-        enabled = enabled
-    )
+        enabled = enabled,
+
+        )
 }

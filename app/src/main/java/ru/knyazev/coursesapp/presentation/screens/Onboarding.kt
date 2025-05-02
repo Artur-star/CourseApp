@@ -33,22 +33,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavController
 import ru.knyazev.coursesapp.R
-import ru.knyazev.coursesapp.presentation.data.LoginScreenObj
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
-import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayTransparent
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 
 @Composable
-fun Onboarding(navController: NavController) {
+fun Onboarding(onClick:() -> Unit) {
     Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(100.dp))
         TitleText()
         Spacer(Modifier.height(32.dp))
         GridButtons()
         Spacer(Modifier.weight(1f))
-        ContinueButton(navController = navController)
+        ContinueButton(onClick)
         Spacer(Modifier.height(32.dp))
     }
 }
@@ -206,10 +203,10 @@ private fun GridButtons() {
 }
 
 @Composable
-fun ContinueButton(navController: NavController) {
+fun ContinueButton(onClick: () -> Unit) {
     PrimaryButton(
         onClick = {
-            navController.navigate(LoginScreenObj)
+            onClick()
         },
         modifier = Modifier
             .fillMaxWidth()
@@ -226,7 +223,11 @@ fun ContinueButton(navController: NavController) {
 fun ContainerButtons(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    colors: ButtonColors = ButtonDefaults.buttonColors(containerColor = LightGrayTransparent),
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.primary.copy(
+            alpha = 0.3f
+        )
+    ),
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -239,4 +240,3 @@ fun ContainerButtons(
         content = content
     )
 }
-

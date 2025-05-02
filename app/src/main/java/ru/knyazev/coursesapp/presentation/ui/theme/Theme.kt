@@ -2,26 +2,28 @@ package ru.knyazev.coursesapp.presentation.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    onSecondary = ButtonGrayDark,
-    tertiary = Pink80,
-    onSurface = BackgroundLight,
-    onPrimary = GrayLight,
-    onBackground  = BackgroundLight,
+    background = BackgroundDark,
+    onBackground = WhiteMainDark,
+    primary = GrayDark,
+    onPrimary = WhiteDark,
+    secondary = StrokeGreyDark,
+    surface = ButtonGrayDark,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    onSecondary = ButtonGrayLight,
-    tertiary = Pink40,
-    onBackground = BackgroundDark,
-    onSurface = BackgroundDark,
-    onPrimary = GrayLight
+    background = BackgroundLight,
+    onBackground = BlackMainLight,
+    primary = GrayLight,
+    onPrimary = BlackLight,
+    secondary = StrokeGreyLight,
+    surface = ButtonGrayLight,
 )
 
 @Composable
@@ -37,6 +39,11 @@ fun CoursesAppTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = {
+            ProvideTextStyle(
+                value = TextStyle(color = MaterialTheme.colorScheme.onBackground),
+                content = content
+            )
+        }
     )
 }

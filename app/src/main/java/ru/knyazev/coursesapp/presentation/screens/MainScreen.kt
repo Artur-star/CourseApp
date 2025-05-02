@@ -43,15 +43,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import ru.knyazev.coursesapp.R
 import ru.knyazev.coursesapp.domain.model.CourseUI
 import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenu
 import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenuItem
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
-import ru.knyazev.coursesapp.presentation.ui.theme.LightGrayTransparent
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteMainDark
 import java.time.LocalDate
@@ -60,42 +56,36 @@ import java.time.format.DateTimeParseException
 import java.util.Locale
 
 @Composable
-fun MainScreen(viewModel: MainViewModel, navController: NavHostController) {
+fun MainScreen(viewModel: MainViewModel) {
     val homeState = viewModel.homeState.collectAsState()
     val favoriteState = viewModel.favoritesState.collectAsState()
+    val currentScreen = remember { mutableStateOf(ButtonMenuItem.HomeBut.route) }
 
     Scaffold(
         bottomBar = {
             ButtonMenu(
+                currentScreen = currentScreen.value,
                 onHomeClick = {
-                    navController.navigate(ButtonMenuItem.HomeBut.route)
+                    currentScreen.value = ButtonMenuItem.HomeBut.route
                 },
                 onFavoritesClick = {
-                    navController.navigate(ButtonMenuItem.FavoriteBut.route)
+                    currentScreen.value = ButtonMenuItem.FavoriteBut.route
                 },
                 onAccountClick = {
-                    navController.navigate(ButtonMenuItem.AccBut.route)
+                    currentScreen.value = ButtonMenuItem.AccBut.route
                 })
         })
     { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = ButtonMenuItem.HomeBut.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(ButtonMenuItem.HomeBut.route) {
-                HomeScreen(
-                    homeState.value.listCourses,
-                    viewModel
-                )
-            }
-            composable(ButtonMenuItem.FavoriteBut.route) {
-                FavoritesScreen(
+        Box(Modifier.padding(innerPadding)) {
+            when (currentScreen.value) {
+                ButtonMenuItem.HomeBut.route -> HomeScreen(homeState.value.listCourses, viewModel)
+                ButtonMenuItem.FavoriteBut.route -> FavoritesScreen(
                     favoriteState.value.listCourses,
                     viewModel
                 )
+
+                ButtonMenuItem.AccBut.route -> AccountScreen()
             }
-            composable(ButtonMenuItem.AccBut.route) { }
         }
     }
 }
@@ -137,7 +127,7 @@ fun HomeScreen(list: List<CourseUI>, viewModel: MainViewModel) {
 
     Column(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
             .fillMaxSize(),
     ) {
         FieldSearchCourse()
@@ -166,22 +156,28 @@ fun CourseItem(item: CourseUI, viewModel: MainViewModel) {
     val text = item.text
     val price = item.price
 
-    Column(Modifier.background(color = MaterialTheme.colorScheme.onPrimary, shape = RoundedCornerShape(16.dp))) {
+    Column(
+        Modifier.background(
+            color = MaterialTheme.colorScheme.surface,
+            shape = RoundedCornerShape(16.dp)
+        )
+    ) {
         ItemHeader(item) {
             viewModel.updateCourseToFavorites(item)
         }
-        Spacer(Modifier.height(16.dp))
-        Text(text = title, style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = text,
-            maxLines = 2,
-            style = MaterialTheme.typography.bodySmall.copy(lineHeight = 16.sp),
-            modifier = Modifier.alpha(0.7f)
-        )
-        Spacer(Modifier.height(10.dp))
-        Row {
-            Text(text = "$price \u20BD", style = MaterialTheme.typography.titleMedium)
+        Column(Modifier.padding(16.dp)) {
+            Text(text = title, style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = text,
+                maxLines = 2,
+                style = MaterialTheme.typography.bodySmall.copy(lineHeight = 16.sp),
+                modifier = Modifier.alpha(0.7f)
+            )
+            Spacer(Modifier.height(10.dp))
+            Row {
+                Text(text = "$price \u20BD", style = MaterialTheme.typography.titleMedium)
+            }
         }
     }
     Spacer(Modifier.height(16.dp))
@@ -213,12 +209,14 @@ fun ItemHeader(item: CourseUI, onFavClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .size(28.dp)
-                    .clickable {
+                    .align(Alignment.Center)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), CircleShape)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = false)
+                    ) {
                         onFavClick()
                     }
-                    .align(Alignment.Center)
-                    .background(LightGrayTransparent, CircleShape)
-
             ) {
                 if (item.hasLike) {
                     BaseIcon(
@@ -247,7 +245,10 @@ fun ItemHeader(item: CourseUI, onFavClick: () -> Unit) {
         ) {
             Row(
                 modifier = Modifier
-                    .background(LightGrayTransparent, RoundedCornerShape(12.dp))
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                        RoundedCornerShape(12.dp)
+                    )
                     .padding(horizontal = 6.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -258,7 +259,10 @@ fun ItemHeader(item: CourseUI, onFavClick: () -> Unit) {
                     tint = GreenMain
                 )
                 Spacer(Modifier.width(4.dp))
-                Text(text = item.rate, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = item.rate,
+                    style = MaterialTheme.typography.bodySmall.copy(color = WhiteMainDark)
+                )
             }
             Spacer(Modifier.width(4.dp))
             Text(
@@ -266,10 +270,10 @@ fun ItemHeader(item: CourseUI, onFavClick: () -> Unit) {
                 modifier = Modifier
                     .background(
                         shape = RoundedCornerShape(12.dp),
-                        color = LightGrayTransparent
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
                     )
                     .padding(horizontal = 6.dp, vertical = 4.dp),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall.copy(color = WhiteMainDark)
             )
         }
     }
@@ -324,8 +328,8 @@ fun FieldSearchCourse() {
                 )
             },
             color = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-                focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent
@@ -334,7 +338,7 @@ fun FieldSearchCourse() {
                 Icon(
                     painter = painterResource(R.drawable.ic_search),
                     contentDescription = "",
-                    tint = WhiteMainDark
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             },
         )
@@ -343,13 +347,13 @@ fun FieldSearchCourse() {
             onClick = {},
             modifier = Modifier
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.onPrimary)
+                .background(MaterialTheme.colorScheme.surface)
 
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_funnel),
                 contentDescription = "",
-                tint = WhiteMainDark,
+                tint = MaterialTheme.colorScheme.onBackground,
             )
         }
     }

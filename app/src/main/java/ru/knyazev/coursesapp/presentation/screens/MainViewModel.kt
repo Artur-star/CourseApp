@@ -10,7 +10,6 @@ import ru.knyazev.coursesapp.data.CourseRepository
 import ru.knyazev.coursesapp.domain.model.CourseUI
 import javax.inject.Inject
 
-
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val courseRepository: CourseRepository,

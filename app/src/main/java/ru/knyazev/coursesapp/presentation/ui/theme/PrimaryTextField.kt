@@ -1,6 +1,5 @@
 package ru.knyazev.coursesapp.presentation.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextField
@@ -19,11 +18,16 @@ fun PrimaryTextField(
     modifier: Modifier = Modifier,
     isError: Boolean = false,
     color: TextFieldColors = TextFieldDefaults.colors(
-        unfocusedContainerColor = if (isSystemInDarkTheme()) GrayLight else GrayDark,
-        focusedContainerColor = if (isSystemInDarkTheme()) GrayLight else GrayDark,
+        unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+        focusedContainerColor = MaterialTheme.colorScheme.primary,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+
         unfocusedIndicatorColor = Color.Transparent,
         focusedIndicatorColor = Color.Transparent,
-        errorIndicatorColor = Color.Transparent
+        errorIndicatorColor = Color.Transparent,
+
+        cursorColor = MaterialTheme.colorScheme.onBackground,
+        errorCursorColor = MaterialTheme.colorScheme.onErrorContainer,
     ),
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,

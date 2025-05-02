@@ -42,21 +42,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import ru.knyazev.coursesapp.R
-import ru.knyazev.coursesapp.presentation.data.MainScreenObj
 import ru.knyazev.coursesapp.presentation.ui.theme.BlueButton
 import ru.knyazev.coursesapp.presentation.ui.theme.DarkOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
 import ru.knyazev.coursesapp.presentation.ui.theme.LightOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
-import ru.knyazev.coursesapp.presentation.ui.theme.StrokeGreyLight
+import ru.knyazev.coursesapp.presentation.ui.theme.WhiteDark
 import ru.knyazev.coursesapp.utils.Constants.OK_URI
 import ru.knyazev.coursesapp.utils.Constants.VK_URI
 
 @Composable
-fun Login(navController: NavController) {
+fun Login(onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,13 +75,13 @@ fun Login(navController: NavController) {
         CheckPasswordField(isNotEmpty = { isEmptyPasswordState = it })
         Spacer(Modifier.height(24.dp))
         InputButton(
-            onClick = { navController.navigate(MainScreenObj) },
+            onClick = onClick,
             isErrorEmailState && isEmptyPasswordState
         )
         Spacer(Modifier.height(16.dp))
         TextLink()
         Spacer(Modifier.height(32.dp))
-        HorizontalDivider(thickness = 1.dp, color = StrokeGreyLight)
+        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.secondary)
         Spacer(Modifier.height(32.dp))
         VkAndOkButtons()
     }
@@ -113,7 +111,11 @@ fun VkAndOkButtons() {
             shape = RoundedCornerShape(30.dp),
             contentPadding = PaddingValues(0.dp)
         ) {
-            Icon(painter = painterResource(R.drawable.ic_vk), contentDescription = "VK")
+            Icon(
+                painter = painterResource(R.drawable.ic_vk),
+                contentDescription = "VK",
+                tint = WhiteDark
+            )
         }
         Spacer(Modifier.width(16.dp))
         PrimaryButton(
@@ -142,7 +144,11 @@ fun VkAndOkButtons() {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(painter = painterResource(R.drawable.ic_classmates), contentDescription = "OK")
+                Icon(
+                    painter = painterResource(R.drawable.ic_classmates),
+                    contentDescription = "OK",
+                    tint = WhiteDark
+                )
             }
         }
     }
