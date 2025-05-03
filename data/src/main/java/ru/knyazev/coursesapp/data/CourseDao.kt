@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import ru.knyazev.coursesapp.data.model.Course
 
 @Dao
@@ -16,9 +15,6 @@ interface CourseDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addCourse(course: Course)
-
-    @Update
-    suspend fun updateCourse(course: Course)
 
     @Delete
     suspend fun deleteCourse(course: Course)
