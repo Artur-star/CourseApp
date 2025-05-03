@@ -31,9 +31,9 @@ object CourseModule {
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): CourseDatabase =
         Room.databaseBuilder(
-            context,
-            CourseDatabase::class.java,
-            "database-courses"
+            context = context,
+            klass = CourseDatabase::class.java,
+            name = "database-courses"
         ).fallbackToDestructiveMigration(false).build()
 
     @Provides

@@ -33,11 +33,6 @@ class CourseRepository @Inject constructor(
 
     suspend fun getCoursesFromCache(): List<CourseUI> = courseDao.getCourses().map { it.toUi() }
 
-    suspend fun updateCourseToCache(course: CourseUI) {
-        course.hasLike = !course.hasLike
-        courseDao.updateCourse(course.toModel())
-    }
-
     suspend fun deleteCourse(course: CourseUI) {
         courseDao.deleteCourse(course.toModel())
     }
