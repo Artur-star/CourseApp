@@ -4,7 +4,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -22,23 +21,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import kotlinx.coroutines.delay
 import ru.knyazev.coursesapp.R
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
 
 @Composable
-fun Onboarding(onClick:() -> Unit) {
+fun Onboarding(onClick: () -> Unit) {
     Column(Modifier.fillMaxSize()) {
         Spacer(Modifier.height(100.dp))
         TitleText()
@@ -63,17 +59,13 @@ fun TitleText() {
 @Composable
 private fun GridButtons() {
     val scrollState = rememberScrollState()
-    val density = LocalDensity.current
-    val containerWidth = remember { mutableStateOf(0.dp) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
             .horizontalScroll(scrollState)
-            .onSizeChanged { size ->
-                containerWidth.value = with(density) { size.width.toDp() }
-            }
     ) {
+
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Row(
                 modifier = Modifier
@@ -196,9 +188,11 @@ private fun GridButtons() {
                 }
             }
         }
-        LaunchedEffect(containerWidth) {
-            scrollState.scrollTo((containerWidth.value.value / 2).toInt())
-        }
+    }
+
+    LaunchedEffect(Unit) {
+        delay(10)
+        scrollState.scrollTo(scrollState.maxValue / 2)
     }
 }
 

@@ -15,8 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,12 +33,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -48,7 +52,6 @@ import ru.knyazev.coursesapp.presentation.ui.theme.DarkOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
 import ru.knyazev.coursesapp.presentation.ui.theme.LightOrangeButton
 import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryButton
-import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteDark
 import ru.knyazev.coursesapp.utils.Constants.OK_URI
 import ru.knyazev.coursesapp.utils.Constants.VK_URI
@@ -161,8 +164,7 @@ fun TextLink() {
             append("Нету аккаунта? ")
             withStyle(SpanStyle(GreenMain)) { append("Регистрация") }
         },
-        style = MaterialTheme.typography.bodyLarge.copy(
-            fontSize = 12.sp,
+        style = MaterialTheme.typography.bodySmall.copy(
             fontWeight = FontWeight.SemiBold
         ),
         modifier = Modifier.fillMaxWidth(),
@@ -184,47 +186,72 @@ fun TextLink() {
 @Composable
 fun CheckEmailField(isError: (Boolean) -> Unit) {
     var textState by remember { mutableStateOf("") }
-    var errorState by remember { mutableStateOf("") }
+    var errorState by remember { mutableStateOf(false) }
 
-    PrimaryTextField(
+    BasicTextField(
         value = textState,
         onValueChange = {
             textState = it
-            errorState = if (EMAIL_ADDRESS.matcher(it).matches()) "" else "Incorrect email"
-            isError(errorState.isEmpty())
+            errorState = EMAIL_ADDRESS.matcher(it).matches()
+            isError(errorState)
         },
+        singleLine = true,
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.CenterVertically),
-        placeholder = {
-            Text(
-                text = stringResource(R.string.example_email),
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+            .fillMaxWidth(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+        decorationBox = { innerTextField ->
+            Box(
                 modifier = Modifier
-                    .alpha(0.5f)
-            )
-        },
-        isError = errorState.isNotEmpty()
+                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(30.dp))
+                    .padding(horizontal = 16.dp, vertical = 11.dp)
+            ) {
+                if (textState.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.example_email),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+                        modifier = Modifier.alpha(0.5f),
+                    )
+                }
+                innerTextField()
+            }
+        }
     )
 }
 
 @Composable
 fun CheckPasswordField(isNotEmpty: (Boolean) -> Unit) {
     var passwordState by remember { mutableStateOf("") }
-    PrimaryTextField(
+
+    BasicTextField(
         value = passwordState,
         onValueChange = {
             passwordState = it
             isNotEmpty(passwordState.isNotEmpty())
         },
+        singleLine = true,
         modifier = Modifier
             .fillMaxWidth(),
-        placeholder = {
-            Text(
-                text = stringResource(R.string.enter_password),
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
-                modifier = Modifier.alpha(0.5f)
-            )
+        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+        decorationBox = { innerTextField ->
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(30.dp))
+                    .padding(horizontal = 16.dp, vertical = 11.dp)
+            ) {
+                if (passwordState.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.enter_password),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+                        modifier = Modifier.alpha(0.5f),
+                    )
+                }
+                innerTextField()
+            }
         }
     )
 }

@@ -17,30 +17,36 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.knyazev.coursesapp.R
@@ -48,7 +54,6 @@ import ru.knyazev.coursesapp.domain.model.CourseUI
 import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenu
 import ru.knyazev.coursesapp.presentation.screens.buttonMenu.ButtonMenuItem
 import ru.knyazev.coursesapp.presentation.ui.theme.GreenMain
-import ru.knyazev.coursesapp.presentation.ui.theme.PrimaryTextField
 import ru.knyazev.coursesapp.presentation.ui.theme.WhiteMainDark
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -115,14 +120,9 @@ fun FavoritesScreen(list: List<CourseUI>, viewModel: MainViewModel) {
 
 @Composable
 fun HomeScreen(list: List<CourseUI>, viewModel: MainViewModel) {
-    val listState = remember { mutableStateOf(list) }
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(Unit) {
         viewModel.loadInitialData()
-    }
-
-    LaunchedEffect(list) {
-        listState.value = list
     }
 
     Column(
@@ -133,19 +133,21 @@ fun HomeScreen(list: List<CourseUI>, viewModel: MainViewModel) {
         FieldSearchCourse()
         Spacer(Modifier.height(16.dp))
         SortedBut {
-            listState.value = listState.value.sortedBy { parseDate(it.publishDate) }
+            viewModel.sortCoursesByPublishDate()
         }
         Spacer(Modifier.height(16.dp))
-        ListCourses(listState.value, viewModel)
+        ListCourses(list, viewModel)
     }
 }
 
 @Composable
 fun ListCourses(list: List<CourseUI>, viewModel: MainViewModel) {
 
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+    LazyColumn(modifier = Modifier.fillMaxWidth(), state = rememberLazyListState()) {
         items(list) { item ->
-            CourseItem(item, viewModel)
+            key (item.id) {
+                CourseItem(item, viewModel)
+            }
         }
     }
 }
@@ -155,6 +157,7 @@ fun CourseItem(item: CourseUI, viewModel: MainViewModel) {
     val title = item.title
     val text = item.text
     val price = item.price
+    val countLines = remember { mutableStateOf(true) }
 
     Column(
         Modifier.background(
@@ -170,23 +173,51 @@ fun CourseItem(item: CourseUI, viewModel: MainViewModel) {
             Spacer(Modifier.height(12.dp))
             Text(
                 text = text,
-                maxLines = 2,
+                maxLines = if (countLines.value) 2 else Int.MAX_VALUE,
+                overflow = if (countLines.value) TextOverflow.Ellipsis else TextOverflow.Clip,
                 style = MaterialTheme.typography.bodySmall.copy(lineHeight = 16.sp),
                 modifier = Modifier.alpha(0.7f)
             )
             Spacer(Modifier.height(10.dp))
-            Row {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween
+            ) {
                 Text(text = "$price \u20BD", style = MaterialTheme.typography.titleMedium)
+                Box {
+                    Row(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable(
+                                onClick = {
+                                    countLines.value = !countLines.value
+                                }),
+                        verticalAlignment = Alignment.CenterVertically
+                    )
+                    {
+                        Text(
+                            text = "Подробнее",
+                            color = GreenMain,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Icon(
+                            painter = painterResource(R.drawable.ic_cursor),
+                            contentDescription = "Cursor",
+                            tint = GreenMain,
+                        )
+                    }
+                }
             }
         }
     }
     Spacer(Modifier.height(16.dp))
-
 }
 
 @Composable
 fun ItemHeader(item: CourseUI, onFavClick: () -> Unit) {
-    val startDateParseState = parseDate(item.startDate)
+    val startDateParseState = remember(item.startDate) { parseDate(item.startDate) }
 
     Box(
         Modifier
@@ -287,10 +318,9 @@ fun SortedBut(onSort: () -> Unit) {
         Row(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
+                .clip(CircleShape)
                 .clickable(
                     onClick = onSort,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(),
                 ),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
@@ -311,44 +341,54 @@ fun SortedBut(onSort: () -> Unit) {
 
 @Composable
 fun FieldSearchCourse() {
+    var textState by remember { mutableStateOf("") }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        PrimaryTextField(
-            value = "",
-            onValueChange = {},
+        BasicTextField(
+            value = textState,
+            onValueChange = {
+                textState = it
+            },
+            singleLine = true,
             modifier = Modifier.weight(1f),
-            placeholder = {
-                Text(
-                    text = stringResource(R.string.search_course),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
-                    modifier = Modifier.alpha(0.5f)
-                )
-            },
-            color = TextFieldDefaults.colors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent
-            ),
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_search),
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            },
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+            decorationBox = { innerTextField ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(28.dp))
+                        .padding(16.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_search),
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(Modifier.width(16.dp))
+                    Box(Modifier.weight(1f)) {
+                        if (textState.isEmpty()) {
+                            Text(
+                                text = stringResource(R.string.search_course),
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+                                modifier = Modifier.alpha(0.5f)
+                            )
+                        }
+                        innerTextField()
+                    }
+                }
+            }
         )
         Spacer(Modifier.width(8.dp))
         IconButton(
             onClick = {},
             modifier = Modifier
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface)
-
+                .size(56.dp)
+                .background(MaterialTheme.colorScheme.surface, CircleShape)
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_funnel),

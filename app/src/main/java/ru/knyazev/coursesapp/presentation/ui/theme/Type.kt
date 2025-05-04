@@ -19,7 +19,7 @@ val Typography = Typography(
         fontFamily = AppFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
-        lineHeight = 14.sp,
+        lineHeight = 16.sp,
         letterSpacing = 0.4.sp,
     ),
     bodyLarge = TextStyle(

@@ -27,7 +27,9 @@ class MainViewModel @Inject constructor(
 
     fun loadInitialData() {
         viewModelScope.launch {
-            val apiCourses = courseRepository.getCoursesFromApi() ?: emptyList()
+            val apiCourses = courseRepository.getCoursesFromApi()?.map { apiCourse ->
+                apiCourse.copy(hasLike = false)
+            } ?: emptyList()
             val cacheCourse = courseRepository.getCoursesFromCache()
 
             val mergeCourse = apiCourses.map { apiCourse ->
@@ -83,6 +85,13 @@ class MainViewModel @Inject constructor(
                     if (it.id == updateCourse.id) updateCourse else it
                 })
             }
+        }
+    }
+
+    fun sortCoursesByPublishDate() {
+        _homeState.update { state ->
+            val sortedList = state.listCourses.sortedBy { it.publishDate }
+            state.copy(listCourses = sortedList)
         }
     }
 }
